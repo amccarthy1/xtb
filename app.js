@@ -1,10 +1,26 @@
-const HashMap = require("./hashmap.js");
+const auth = require("./auth.json");
+const botoptions = require("./botconfig.json");
+const ExtBot = require("./extbot.js");
+const tmi = require("tmi.js");
 
-var map = new HashMap();
+const options = {
+    options: {
+        debug: true
+    },
+    connection: {
+        cluster: "aws",
+        reconnect: true
+    },
+    identity: auth,
+    channels: [botoptions.channel, "chattleship"]
+};
 
-map.put("foo", 1);
-map.put("bar", 2);
+const client = tmi.client(options);
 
-console.log(map.get("foo")); // 1
-console.log(map.get("bar")); // 2
-console.log(map.get("baz")); // undefined
+const bot = new ExtBot(client, botoptions.channel);
+
+for (var key in botoptions.commands) {
+  bot.addTextCommand(key, botoptions.commands[key]);
+}
+
+bot.connect();

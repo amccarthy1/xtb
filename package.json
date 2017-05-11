@@ -12,8 +12,11 @@
   ],
   "author": "Adam McCarthy",
   "repository": {
-      "type": "git",
-      "url": "https://github.com/amccarthy1/xtb.git"
+    "type": "git",
+    "url": "https://github.com/amccarthy1/xtb.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "tmi.js": "^1.2.0"
+  }
 }

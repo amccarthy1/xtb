@@ -56,3 +56,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# Don't commit credentials
+auth.json
