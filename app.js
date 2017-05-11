@@ -12,15 +12,12 @@ const options = {
         reconnect: true
     },
     identity: auth,
-    channels: [botoptions.channel, "chattleship"]
+    channels: [botoptions.channel]
 };
 
 const client = tmi.client(options);
 
 const bot = new ExtBot(client, botoptions.channel);
-
-for (var key in botoptions.commands) {
-  bot.addTextCommand(key, botoptions.commands[key]);
-}
+bot.load(botoptions.commands);
 
 bot.connect();

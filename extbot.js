@@ -1,4 +1,20 @@
+"use strict";
+
 const HashMap = require("./hashmap.js");
+
+/**
+ * A message object
+ * @param {string} channel The channel in which this message was received
+ * @param {string} user The user who sent this message
+ * @param {string} message The message that was sent
+ * @param {string} self Did this bot send the message?
+ */
+function Message(channel, user, message, self) {
+    this.channel = channel;
+    this.user = user;
+    this.contents = message;
+    this.self = self;
+}
 
 /**
  * Extensible Twitch Bot. Takes an instance of TMI and wraps it with additional
@@ -49,16 +65,17 @@ function ExtBot(tmi, channel) {
     return true;
   };
 
+  // Main handler for chat messages. All chat events go through here.
   tmi.on("chat", function(channel, user, message, self) {
-    if (channel.replace("#", "") !== xtb.channel)
-      // ignore messages in other channels
+    const msg = new Message(channel.replace("#", ""), user, message, self);
+    if (msg.channel !== xtb.channel)
+      // ignore messages in other channels and messages we sent.
       return;
 
     const command = message.trim().split(/\s/)[0];
     const responder = xtb.getCommand(command);
 
-    // TODO redesign so that the function accepts message details.
-    responder();
+    responder(msg);
   });
 }
 
@@ -80,11 +97,14 @@ ExtBot.prototype.say = function(message) {
  *  want in the command name).
  * @param {string} response The string to send whenever the given command is
  *  received.
+ * @return {boolean} success true if the command was added, else false.
  */
 ExtBot.prototype.addTextCommand = function(name, response) {
   const xtb = this;
-  return this.registerCommand(name, function() {
-    xtb.say(response);
+  return this.registerCommand(name, function(msg) {
+    if (!msg.self) {
+      xtb.say(response);
+    }
   });
 };
 
@@ -93,6 +113,34 @@ ExtBot.prototype.addTextCommand = function(name, response) {
  */
 ExtBot.prototype.connect = function() {
   this.tmi.connect();
-}
+};
+
+/**
+ * Load commands from an object.
+ * @param {object} commands An object containing the commands to load in.
+ *  the keys of the object are the command names, and the values are one of the
+ *  following:
+ *    string: A new text => text command will be added that responds to the key
+ *      with its value.
+ *    function: (unimplemented) A command is added to respond to the key string
+ *      by calling the provided callback function, with the message as the arg.
+ *    object: (unimplemented) Use a plugin for the handler (format undetermined)
+ */
+ExtBot.prototype.load = function(commands) {
+  for (var key in commands) {
+    if (!Object.prototype.hasOwnProperty.call(commands, key))
+      continue;
+
+    let value = commands[key];
+    // string values => Text Commands
+    if (typeof value === "string") {
+      this.addTextCommand(key, value);
+    } else if (typeof value === "function") {
+      // TODO add support for passing functions (for programmer friendliness)
+    } else if (typeof value === "object") {
+      // TODO handle object commands. (eventually this will be how plugins work)
+    }
+  }
+};
 
 module.exports = ExtBot;
