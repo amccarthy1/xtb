@@ -1,6 +1,7 @@
 "use strict";
 
 const HashMap = require("./hashmap.js");
+const RLQueue = require("./rl_queue.js");
 
 /**
  * A message object
@@ -25,6 +26,8 @@ function Message(channel, user, message, self) {
 function ExtBot(tmi, channel) {
   this.tmi = tmi;
   this.channel = channel;
+  // Twitch rate limiting is 20 messages in a 30s window. 1s for extra buffer :)
+  this.rlq = new RLQueue(20, 31000);
   if (typeof channel === "undefined") {
     throw new Error(
       "Missing required argument 'channel' in constructor for ExtBot"
@@ -83,11 +86,14 @@ ExtBot.prototype.tmi = null;
 ExtBot.prototype.channel = null;
 
 /**
- * Say a message in this bot's channel.
+ * Say a message in this bot's channel. Enforces rate-limiting.
  * @param {string} message The message to send.
  */
 ExtBot.prototype.say = function(message) {
-  this.tmi.say(this.channel, message);
+  const eb = this;
+  this.rlq.submit(function() {
+    eb.tmi.say(eb.channel, message);
+  });
 };
 
 /**
