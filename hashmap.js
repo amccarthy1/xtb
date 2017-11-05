@@ -8,19 +8,18 @@ function HashMap(defVal) {
   /**
    * @param {string|number|boolean} key The key for which to check existence
    */
-  this.containsKey = function(key) {
-    // call it like this so that hasOwnProperty isn't accidentally overridden.
-    return Object.prototype.hasOwnProperty.call(table, key);
-  };
+  this.containsKey = key => Object.prototype.hasOwnProperty.call(table, key);
 
-  this.get = function(key) {
-    if (!(this.containsKey(key))) {
-      return defVal;
-    }
-    return table[key];
-  };
+  /**
+   * @param {string|number|boolean} key The key to look up
+   */
+  this.get = (key) => (this.containsKey(key) ? table[key] : defVal);
 
-  this.put = function(key, value) {
+  /**
+   * @param {string|number|boolean} key The key for which to set a value
+   * @param {*} value The value to set for the given key
+   */
+  this.put = (key, value) => {
     table[key] = value;
   };
 }

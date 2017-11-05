@@ -1,5 +1,5 @@
 const auth = require("./auth.json");
-const botoptions = require("./botconfig.json");
+const botconfig = require("./botconfig.json");
 const ExtBot = require("./extbot.js");
 const tmi = require("tmi.js");
 
@@ -12,12 +12,12 @@ const options = {
         reconnect: true
     },
     identity: auth,
-    channels: [botoptions.channel]
+    channels: [botconfig.channel]
 };
 
 const client = tmi.client(options);
 
-const bot = new ExtBot(client, botoptions.channel);
-bot.load(botoptions.commands);
+const bot = new ExtBot(client, botconfig.channel);
+bot.load(botconfig.commands);
 
 bot.connect();

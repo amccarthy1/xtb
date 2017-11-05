@@ -36,7 +36,7 @@ function ExtBot(tmi, channel) {
 
   // maps text to functions that are called when the text matches the first
   // word of a message. Default for unrecognized commands is no-op.
-  const commands = new HashMap(function() {});
+  const commands = new HashMap(() => {});
 
   const xtb = this;
 
@@ -44,9 +44,7 @@ function ExtBot(tmi, channel) {
    * Gets the function associated with a command.
    * @param {string} name The command to lookup.
    */
-  this.getCommand = function(name) {
-    return commands.get(name);
-  };
+  this.getCommand = cmd => commands.get(cmd);
 
   /**
    * Register a command with this bot. Commands must be the first word in a
@@ -137,7 +135,7 @@ ExtBot.prototype.load = function(commands) {
     if (!Object.prototype.hasOwnProperty.call(commands, key))
       continue;
 
-    let value = commands[key];
+    const value = commands[key];
     // string values => Text Commands
     if (typeof value === "string") {
       this.addTextCommand(key, value);
