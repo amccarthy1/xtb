@@ -4,8 +4,7 @@
   "description": "eXtensible Twitch Bot",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "start": "node app.js"
+    "test": "mocha"
   },
   "keywords": [
     "twitch",
