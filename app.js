@@ -1,6 +1,6 @@
 const auth = require("./auth.json");
 const botconfig = require("./botconfig.json");
-const ExtBot = require("./extbot.js");
+const ExtBot = require("./lib/extbot");
 const tmi = require("tmi.js");
 
 const options = {
