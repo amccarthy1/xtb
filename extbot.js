@@ -38,6 +38,10 @@ function ExtBot(tmi, channel) {
   // word of a message. Default for unrecognized commands is no-op.
   const commands = new HashMap(() => {});
 
+  // globalListeners are called with every message sent in the chat. They can
+  // be used for logging or handling complicated response rules.
+  const globalListeners = [];
+
   const xtb = this;
 
   /**
@@ -66,6 +70,12 @@ function ExtBot(tmi, channel) {
     return true;
   };
 
+  this.registerGlobalListener = action => {
+    if (typeof action === "function") {
+      globalListeners.push(action);
+    }
+  };
+
   // Main handler for chat messages. All chat events go through here.
   tmi.on("chat", function(channel, user, message, self) {
     const msg = new Message(channel.replace("#", ""), user, message, self);
@@ -73,10 +83,23 @@ function ExtBot(tmi, channel) {
       // ignore messages in other channels and messages we sent.
       return;
 
-    const command = message.trim().split(/\s/)[0];
-    const responder = xtb.getCommand(command);
+    // Handle with global handlers
+    globalListeners.forEach(action => {
+      try {
+        action(msg);
+      } catch (ex) {
+        console.error(ex);
+      }
+    });
 
-    responder(msg);
+    const command = message.trim().split(/\s/)[0];
+    try {
+      const responder = xtb.getCommand(command);
+      responder(msg);
+    } catch (ex) {
+      // Make sure to catch and log the error but continue on
+      console.error(ex);
+    }
   });
 }
 
@@ -104,10 +127,9 @@ ExtBot.prototype.say = function(message) {
  * @return {boolean} success true if the command was added, else false.
  */
 ExtBot.prototype.addTextCommand = function(name, response) {
-  const xtb = this;
-  return this.registerCommand(name, function(msg) {
+  return this.registerCommand(name, msg => {
     if (!msg.self) {
-      xtb.say(response);
+      this.say(response);
     }
   });
 };

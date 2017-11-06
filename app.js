@@ -20,4 +20,9 @@ const client = tmi.client(options);
 const bot = new ExtBot(client, botconfig.channel);
 bot.load(botconfig.commands);
 
+bot.registerGlobalListener(m => {
+  const name = m.user['display-name'];
+  console.log(`Logging message: [${name}]: ${m.contents}`);
+});
+
 bot.connect();
