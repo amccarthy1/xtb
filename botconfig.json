@@ -1,8 +1,0 @@
-{
-  "channel": "eigenvektor",
-  "commands": {
-    "!bot": "This bot was created with xtb (https://github.com/amccarthy1/xtb)",
-    "!ping": "pong!",
-    "!help": "Available commands: !bot (bot info), !ping (responds \"pong\")"
-  }
-}
