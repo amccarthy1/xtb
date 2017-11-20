@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/amccarthy1/xtb.svg?branch=travis)](https://travis-ci.org/amccarthy1/xtb)
 # eXtensible Twitch Bot
 
 A twitch bot framework written in Node.js using tmi.js,
