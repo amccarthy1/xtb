@@ -8,6 +8,10 @@ describe('RL Queue', function() {
         queue = new RLQueue(3, 25); // 25ms timeout
     });
 
+    afterEach(function() {
+        queue.close();
+    });
+
     describe('submit', function() {
         it('executes immediately only when below the timeout', function() {
             let executed = 0;
@@ -18,7 +22,7 @@ describe('RL Queue', function() {
             assert.equal(executed, 2); // should invoke synchronously
             queue.submit(increment);
             assert.equal(executed, 3, 'Submit should invoke immediately when n=3');
-            queue.submit(increment);
+            queue.submit(increment).catch(() => {}); // ignore cancellation error
             assert.equal(executed, 3, 'Submit should not execute until the 50ms timeout passes');
         });
 
@@ -28,7 +32,7 @@ describe('RL Queue', function() {
             queue.submit(increment);
             queue.submit(increment);
             queue.submit(increment);
-            queue.submit(increment); // delayed
+            queue.submit(increment).catch(() => {}); // delayed, ignore cancellation error
             assert.equal(executed, 3);
             queue.submit(() => {
                 assert.equal(executed, 4, 'Submit should execute pending tasks in order');

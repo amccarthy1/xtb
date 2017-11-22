@@ -44,8 +44,13 @@ describe('ExtBot', function() {
                 };
             },
             connect: () => { connected = true; },
+            disconnect: () => { connected = false; },
         };
         xtb = new ExtBot(tmi, channel);
+    });
+
+    afterEach(function() {
+        xtb.disconnect();
     });
 
     describe('connect', function() {
