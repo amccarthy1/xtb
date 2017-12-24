@@ -8,6 +8,7 @@ describe('ExtBot', function() {
     let tmi; // tmi mock
     let send; // call to send a fake message
     let messages; // a list of messages sent by ExtBot
+    let actions; // a list of 'action' messages sent by ExtBot
     let connected;
 
     // test users to send messages
@@ -27,7 +28,7 @@ describe('ExtBot', function() {
             id: uuidv4(),
             'display-name': 'test',
         };
-        messages = [];
+        messages = []; actions = [];
         send = () => {
             assert.fail('Tried to send message before registering listener');
         };
@@ -35,6 +36,10 @@ describe('ExtBot', function() {
         tmi = {
             say: function(channel, msg) {
                 messages.push(msg);
+                send(testUserSelf, msg);
+            },
+            action: function(channel, msg) {
+                actions.push(msg);
                 send(testUserSelf, msg);
             },
             on: function(evtType, handler) {
@@ -79,6 +84,26 @@ describe('ExtBot', function() {
             assert.equal(hit, 1);
             send(testUserOther, '!test');
             assert.equal(hit, 2);
+        });
+    });
+
+    describe('tmi wrapper', function() {
+        it('say calls TMI function', function(cb) {
+            const msg = uuidv4();
+            xtb.say(msg).then(() => {
+                assert.equal(messages.length, 1);
+                assert.equal(messages[0], msg);
+                return cb();
+            });
+        });
+
+        it('action calls TMI function', function(cb) {
+            const msg = uuidv4();
+            xtb.action(msg).then(() => {
+                assert.equal(actions.length, 1);
+                assert.equal(actions[0], msg);
+                return cb();
+            });
         });
     });
 
