@@ -9,6 +9,7 @@ describe('ExtBot', function() {
     let send; // call to send a fake message
     let messages; // a list of messages sent by ExtBot
     let actions; // a list of 'action' messages sent by ExtBot
+    let bans; // a list of 'ban' objects with usernames and reasons.
     let connected;
 
     // test users to send messages
@@ -28,7 +29,7 @@ describe('ExtBot', function() {
             id: uuidv4(),
             'display-name': 'test',
         };
-        messages = []; actions = [];
+        messages = []; actions = []; bans = [];
         send = () => {
             assert.fail('Tried to send message before registering listener');
         };
@@ -37,10 +38,17 @@ describe('ExtBot', function() {
             say: function(channel, msg) {
                 messages.push(msg);
                 send(testUserSelf, msg);
+                return Promise.resolve(msg);
             },
             action: function(channel, msg) {
                 actions.push(msg);
                 send(testUserSelf, msg);
+                return Promise.resolve(msg);
+            },
+            ban: function(channel, username, reason) {
+                const ban = { username, reason };
+                bans.push(ban);
+                return Promise.resolve(ban);
             },
             on: function(evtType, handler) {
                 send = function(user, message) {
@@ -88,21 +96,31 @@ describe('ExtBot', function() {
     });
 
     describe('tmi wrapper', function() {
-        it('say calls TMI function', function(cb) {
+        it('say calls TMI function', function(done) {
             const msg = uuidv4();
             xtb.say(msg).then(() => {
                 assert.equal(messages.length, 1);
                 assert.equal(messages[0], msg);
-                return cb();
+                return done();
             });
         });
 
-        it('action calls TMI function', function(cb) {
+        it('action calls TMI function', function(done) {
             const msg = uuidv4();
             xtb.action(msg).then(() => {
                 assert.equal(actions.length, 1);
                 assert.equal(actions[0], msg);
-                return cb();
+                return done();
+            });
+        });
+
+        it('ban calls TMI function', function(done) {
+            const reason = uuidv4();
+            xtb.ban(testUserOther['display-name'], reason).then(() => {
+                assert.equal(bans.length, 1);
+                assert.equal(bans[0].username, 'test');
+                assert.equal(bans[0].reason, reason);
+                return done();
             });
         });
     });
