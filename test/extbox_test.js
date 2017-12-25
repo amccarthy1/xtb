@@ -136,4 +136,20 @@ describe('ExtBot', function() {
             assert.equal(messages.length, 1);
         });
     });
+
+    describe('loadPlugin', function() {
+        it('calls initialize and cleanup', function() {
+            var initialized = false;
+            var cleanedUp = false;
+            const plugin = {
+                initialize: () => initialized = true,
+                cleanup: () => cleanedUp = true,
+            };
+            xtb.loadPlugin(plugin);
+            assert.equal(initialized, true);
+            assert.equal(cleanedUp, false);
+            xtb.disconnect();
+            assert.equal(cleanedUp, true);
+        });
+    });
 });
